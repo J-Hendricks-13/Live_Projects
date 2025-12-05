@@ -270,6 +270,68 @@ def page_dissection_full():
 
 
 # --- END OF NEW PAGE ---
+def page_oop_notes():
+    """Consolidated notes on OOP principles (Abstraction, Encapsulation, Inheritance)
+       and their relation to APIs and the Vehicle example."""
+    
+    st.header("OOP Principles: Notes & API Connection 🧠")
+    st.markdown("These notes summarize the core Object-Oriented Programming (OOP) concepts and how they relate to designing robust APIs and code structures.")
+
+    st.markdown("---")
+
+    ## 1. Abstraction and the API Interface
+    st.subheader("1. Abstraction and the Interface (The 'What')")
+    
+    st.markdown("""
+    **Abstraction** is the principle of showing only **essential information** to the user and hiding the complex background details.
+    
+    * **The Interface/API:** In programming, the **Interface** is the public contract that defines **what** an object can do (the methods and attributes it exposes).
+    * **The Dot Operator (`.`):** When you type `my_object.` in your IDE, the dropdown list that appears **is the interface** (or API) for that object. It shows you the public functions you are allowed to call (e.g., `.start_engine()`, `.get_info()`). 
+    * **API Connection:** A **REST API** (like goRest) is the ultimate form of abstraction, exposing endpoints (`/users`) that define what actions you can perform (`GET`, `POST`) without showing you the server's database code.
+    """)
+    
+    st.markdown("---")
+
+    ## 2. Encapsulation
+    st.subheader("2. Encapsulation (Hiding the 'How')")
+
+    st.markdown("""
+    **Encapsulation** is the binding of data (attributes) and the methods (functions) that operate on that data into a single unit (the class), and **hiding the internal state**.
+    
+    * **Goal:** Protect the data from being accidentally changed by external code and ensure it is only modified through controlled public methods.
+    * **Vehicle Example:** In our `Car` class, the `self._is_running` attribute is an internal detail.
+        * It is marked with a single underscore (`_is_running`) in Python to indicate it's **private/protected** (though Python doesn't strictly enforce it).
+        * The only way to change its value is through the public API method: `my_car.start_engine()`. This prevents outside code from putting the car in an invalid state.
+    """)
+    st.code("""
+class Car(Vehicle):
+    def __init__(self, make, model):
+        # Hidden internal detail (Encapsulated)
+        self._is_running = False 
+        ...
+    
+    # Public method (API) that controls the internal state
+    def start_engine(self):
+        self._is_running = True
+        ...
+""", language='python')
+    
+    st.markdown("---")
+
+    ## 3. Inheritance and Coupling
+    st.subheader("3. Inheritance and Coupling (The 'Depends On' Rule)")
+
+    st.markdown("""
+    **Inheritance** allows a new class (subclass) to take on the properties and methods of an existing class (parent class). This is vital for code reuse and defining hierarchies.
+    
+    * **Vehicle Example:** The concrete **`Car`** and **`Truck`** classes **inherit** from the abstract **`Vehicle`** interface.
+    * **Low Coupling is Key:** To build maintainable systems, we follow the **Dependency Inversion Principle**, which is: **Program to an interface, not an implementation.** 
+        * **Good Practice (Low Coupling):** Inherit from the **Abstract Interface** (`Vehicle`). Your code relies only on the public contract (`start_engine` exists), not on any concrete implementation details.
+        * **Bad Practice (High Coupling):** Inherit from a **Concrete Class** (`Car`). Any internal change to `Car` (even a renaming of a private variable) can break your new inherited class, creating a fragile system.
+    """)
+    
+    st.markdown("---")
+    st.caption("These principles ensure our API-driven applications are flexible, scalable, and easy to maintain over time.")
 
 def page_example_request():
     """Demonstrates a fully formed POST request with pre-filled fields."""
@@ -429,6 +491,7 @@ page_selection = st.sidebar.selectbox(
     "Select a Core Concept to Explore:",
     {
         "Intro": "Introduction to REST & CRUD",
+        "OOP Notes": "0. OOP Principles Notes 📝",
         "GET List": "1. GET Request (Read / Getter)",
         "GET ID": "2. Path Parameters (Single Item)",
         "GET Query": "3. Query Parameters (Pagination)",
@@ -441,6 +504,8 @@ page_selection = st.sidebar.selectbox(
 # Render the selected page
 if page_selection == "Intro":
     intro_page()
+elif page_selection == "OOP Notes": # <-- ADDED NEW CONDITION
+    page_oop_notes()
 elif page_selection == "GET List":
     page_get_all()
 elif page_selection == "GET ID":
