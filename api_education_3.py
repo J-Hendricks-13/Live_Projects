@@ -306,7 +306,7 @@ page_selection = st.sidebar.selectbox(
     {
         "OOP Notes": "0. OOP Principles Notes 📝",
         "API Concepts": "Introduction to REST & CRUD",        
-        "Dissection": "4. API Dissection: Headers & Body 🔍"
+        "API Dissection": "4. API Dissection: Headers & Body 🔍"
     }
 )
 
@@ -315,12 +315,13 @@ if page_selection == "API Concepts":
     intro_page()
 elif page_selection == "OOP Notes": # <-- ADDED NEW CONDITION
     page_oop_notes()
-elif page_selection == "Dissection":
+elif page_selection == "API Dissection":
     page_dissection_full() # Calling the new detailed function
 
 st.sidebar.divider()
 
 st.sidebar.caption("Powered by Streamlit and GoREST API.")
+
 
 
 
