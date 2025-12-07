@@ -58,12 +58,12 @@ notes = [
     {
         "title": "OOP Design Patterns — Factory Pattern",
         "desc": "Deep dive into creational design patterns with examples.",
-        "link": "https://liveprojects-5yrc8eepxwuwwc8gcquhw3.streamlit.app/",
+        "link": "https://liveprojects-ayqlemdgahmimmr7ugodkf.streamlit.app/",
     },
     {
         "title": "API Fundamentals — REST, requests, authentication",
         "desc": "Notes on designing and consuming APIs effectively.",
-        "link": "https://liveprojects-5yrc8eepxwuwwc8gcquhw3.streamlit.app/",
+        "link": "https://liveprojects-ayqlemdgahmimmr7ugodkf.streamlit.app/",
     },
     {
         "title": "Code Architecture — SOLID, abstraction, dependency inversion",
@@ -108,5 +108,6 @@ st.markdown("""
     © 2025 Jawaad Hendricks — Streamlit Portfolio
 </div>
 """, unsafe_allow_html=True)
+
 
 
