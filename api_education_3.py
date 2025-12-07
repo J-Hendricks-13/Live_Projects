@@ -311,7 +311,7 @@ page_selection = st.sidebar.selectbox(
 )
 
 # Render the selected page
-if page_selection == "Intro":
+if page_selection == "API Concepts":
     intro_page()
 elif page_selection == "OOP Notes": # <-- ADDED NEW CONDITION
     page_oop_notes()
@@ -321,6 +321,7 @@ elif page_selection == "Dissection":
 st.sidebar.divider()
 
 st.sidebar.caption("Powered by Streamlit and GoREST API.")
+
 
 
 
