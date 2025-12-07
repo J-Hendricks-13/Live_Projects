@@ -69,6 +69,7 @@ notes = [
         "title": "Code Architecture — SOLID, abstraction, dependency inversion",
         "desc": "Full breakdown of scalable system design principles.",
         "link": "#",
+        "link": "#"
     },
     {
         "title": "Streamlit Mini Projects",
@@ -107,4 +108,5 @@ st.markdown("""
     © 2025 Jawaad Hendricks — Streamlit Portfolio
 </div>
 """, unsafe_allow_html=True)
+
 
