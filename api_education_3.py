@@ -320,19 +320,10 @@ if page_selection == "Intro":
     intro_page()
 elif page_selection == "OOP Notes": # <-- ADDED NEW CONDITION
     page_oop_notes()
-elif page_selection == "GET List":
-    page_get_all()
-elif page_selection == "GET ID":
-    page_resource_id()
-elif page_selection == "GET Query":
-    page_pagination()
 elif page_selection == "Dissection":
     page_dissection_full() # Calling the new detailed function
-elif page_selection == "Example POST":
-    page_example_request()
-elif page_selection == "Playground":
-    page_playground()
 
 st.sidebar.divider()
 
 st.sidebar.caption("Powered by Streamlit and GoREST API.")
+
