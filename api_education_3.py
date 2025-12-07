@@ -300,11 +300,11 @@ class Car(Vehicle):
 
 # --- MAIN APP LOGIC ---
 
-st.sidebar.title("API Concepts")
+st.sidebar.title("Concepts to Explore")
 page_selection = st.sidebar.selectbox(
     "Select a Core Concept to Explore:",
     {
-        "Intro": "Introduction to REST & CRUD",
+        "API Concepts": "Introduction to REST & CRUD",
         "OOP Notes": "0. OOP Principles Notes 📝",
         "Dissection": "4. API Dissection: Headers & Body 🔍"
     }
@@ -321,5 +321,6 @@ elif page_selection == "Dissection":
 st.sidebar.divider()
 
 st.sidebar.caption("Powered by Streamlit and GoREST API.")
+
 
 
