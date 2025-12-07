@@ -306,12 +306,7 @@ page_selection = st.sidebar.selectbox(
     {
         "Intro": "Introduction to REST & CRUD",
         "OOP Notes": "0. OOP Principles Notes 📝",
-        "GET List": "1. GET Request (Read / Getter)",
-        "GET ID": "2. Path Parameters (Single Item)",
-        "GET Query": "3. Query Parameters (Pagination)",
-        "Dissection": "4. API Dissection: Headers & Body 🔍",
-        "Example POST": "5. API Example: POST Request ✏️",
-        "Playground": "6. API Practice Playground 🧪"
+        "Dissection": "4. API Dissection: Headers & Body 🔍"
     }
 )
 
@@ -326,4 +321,5 @@ elif page_selection == "Dissection":
 st.sidebar.divider()
 
 st.sidebar.caption("Powered by Streamlit and GoREST API.")
+
 
