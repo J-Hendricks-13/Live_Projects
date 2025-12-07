@@ -61,14 +61,9 @@ notes = [
         "link": "https://liveprojects-5yrc8eepxwuwwc8gcquhw3.streamlit.app/",
     },
     {
-        "title": "AI Algorithms — Agents, RAG, Embeddings",
-        "desc": "Conceptual breakdowns and implementable templates.",
-        "link": "#",
-    },
-    {
         "title": "API Fundamentals — REST, requests, authentication",
         "desc": "Notes on designing and consuming APIs effectively.",
-        "link": "#",
+        "link": "https://liveprojects-5yrc8eepxwuwwc8gcquhw3.streamlit.app/",
     },
     {
         "title": "Code Architecture — SOLID, abstraction, dependency inversion",
@@ -112,3 +107,4 @@ st.markdown("""
     © 2025 Jawaad Hendricks — Streamlit Portfolio
 </div>
 """, unsafe_allow_html=True)
+
