@@ -304,8 +304,8 @@ st.sidebar.title("Concepts to Explore")
 page_selection = st.sidebar.selectbox(
     "Select a Core Concept to Explore:",
     {
-        "API Concepts": "Introduction to REST & CRUD",
         "OOP Notes": "0. OOP Principles Notes 📝",
+        "API Concepts": "Introduction to REST & CRUD",        
         "Dissection": "4. API Dissection: Headers & Body 🔍"
     }
 )
@@ -321,6 +321,7 @@ elif page_selection == "Dissection":
 st.sidebar.divider()
 
 st.sidebar.caption("Powered by Streamlit and GoREST API.")
+
 
 
 
