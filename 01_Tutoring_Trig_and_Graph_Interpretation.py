@@ -1,154 +1,234 @@
 import streamlit as st
 import pandas as pd
-import numpy as np 
+import numpy as np
 import plotly.graph_objects as go
-import random
-from math import ceil
 import datetime
 
+# =====================================================
+# CONFIGURATION
+# =====================================================
 st.set_page_config(page_title="Ultimate Math Tutor", layout="wide")
 
-# -------------------------
-# GLOBAL DATA STRUCTURES
-# -------------------------
-RULES_DATA = [
-    {"id": "PARA", "name": "Parabola", "formula": r"y = ax^2 + q", "desc": "Turning point: (0, q). 'a' > 0 is a smile, 'a' < 0 is a frown."},
-    {"id": "HYP", "name": "Hyperbola", "formula": r"y = \frac{a}{x} + q", "desc": "Asymptotes at x=0 and y=q. 'a' moves curves between quadrants."},
-    {"id": "EXP", "name": "Exponential", "formula": r"y = a \cdot b^x + q", "desc": "Horizontal asymptote at y=q. 'b' > 1 is growth, 0 < b < 1 is decay."},
-    {"id": "TRIG", "name": "Sine Wave", "formula": r"y = a\sin(x) + q", "desc": "Periodic wave. 'a' is amplitude, 'q' is rest position."},
-]
+EPS = 1e-6
+Y_CLIP = 1e3
 
-# -------------------------
-# RENDERERS
-# -------------------------
-def render_theory_overview():
-    st.header("📚 The Function Gallery")
-    st.write("Master these shapes to ace Grade 11 Graph Interpretation.")
-    
+
+# =====================================================
+# SESSION STATE MANAGEMENT
+# =====================================================
+def init_session_state():
+    defaults = {
+        "test_submissions": [],
+        "show_grade_result": False,
+        "last_score": "",
+    }
+    for key, value in defaults.items():
+        if key not in st.session_state:
+            st.session_state[key] = value
+
+
+# =====================================================
+# MATHEMATICAL MODELS
+# =====================================================
+def generate_parabola(a, q):
+    x = np.linspace(-10, 10, 400)
+    y = a * (x**2) + q
+    return x, y
+
+
+def generate_hyperbola(a, q):
+    x = np.linspace(-10, 10, 400)
+    x = x[np.abs(x) > EPS]
+    y = (a / x) + q
+    return x, y
+
+
+def generate_exponential(a, b, q):
+    x = np.linspace(-5, 5, 400)
+    y = a * np.power(b, x)
+    y = np.clip(y, -Y_CLIP, Y_CLIP) + q
+    return x, y
+
+
+def generate_sine(a, q):
+    x = np.linspace(0, 360, 500)
+    y = a * np.sin(np.radians(x)) + q
+    return x, y
+
+
+# =====================================================
+# GRADING ENGINE
+# =====================================================
+def normalize(text):
+    return text.replace(" ", "").lower()
+
+
+def grade_assessment(ans1, ans2):
+    score = 0
+
+    if normalize(ans1) in ["(0,2)", "0,2"]:
+        score += 1
+
+    if normalize(ans2) in ["y=-4", "-4"]:
+        score += 1
+
+    return score
+
+
+# =====================================================
+# VISUALIZATION ENGINE
+# =====================================================
+def plot_graph(x, y, q):
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=x, y=y, line=dict(width=3)))
+    fig.add_hline(y=q, line_dash="dash", annotation_text=f"y = {q}")
+    fig.update_layout(template="plotly_white", height=500, yaxis=dict(range=[-10, 10]))
+    return fig
+
+
+# =====================================================
+# LESSON RENDERERS
+# =====================================================
+def render_theory():
+    st.header("Function Gallery")
+
+    functions = [
+        ("Parabola", r"y = ax^2 + q", "Turning point at (0, q)"),
+        ("Hyperbola", r"y = \frac{a}{x} + q", "Asymptotes x=0 and y=q"),
+        ("Exponential", r"y = a \cdot b^x + q", "Horizontal asymptote y=q"),
+        ("Sine", r"y = a\sin(x) + q", "Amplitude a, midline q"),
+    ]
+
     cols = st.columns(2)
-    for i, r in enumerate(RULES_DATA):
+    for i, f in enumerate(functions):
         with cols[i % 2]:
             with st.container(border=True):
-                st.subheader(r["name"])
-                st.latex(r["formula"])
-                st.write(r["desc"])
+                st.subheader(f[0])
+                st.latex(f[1])
+                st.write(f[2])
 
-def render_visualization_lab():
-    st.header("🎮 Multiverse Graph Lab")
-    st.markdown("Experiment with **Stretch (a)** and **Shift (q)**.")
 
-    c1, c2 = st.columns([1, 2])
-    with c1:
-        func_choice = st.selectbox("Select Function Type", ["Parabola", "Hyperbola", "Exponential", "Sine"])
-        a = st.slider("Stretch/Amplitude (a)", -5.0, 5.0, 1.0, 0.5)
-        q = st.slider("Vertical Shift (q)", -5.0, 5.0, 0.0, 0.5)
-        
-        if func_choice == "Exponential":
-            b = st.radio("Base (b)", [2.0, 0.5], horizontal=True)
+def render_graph_lab():
+    st.header("Graph Lab")
+
+    col1, col2 = st.columns([1, 2])
+
+    with col1:
+        func = st.selectbox("Function", ["Parabola", "Hyperbola", "Exponential", "Sine"])
+        a = st.slider("Stretch (a)", -5.0, 5.0, 1.0, 0.5)
+        q = st.slider("Shift (q)", -5.0, 5.0, 0.0, 0.5)
+
+        if func == "Exponential":
+            b = st.radio("Base (b)", [2.0, 0.5])
         else:
-            b = 1.0
+            b = None
 
-    with c2:
-        fig = go.Figure()
-        
-        if func_choice == "Parabola":
-            x = np.linspace(-10, 10, 400)
-            y = a * (x**2) + q
-            
-        elif func_choice == "Hyperbola":
-            x1 = np.linspace(-10, -0.1, 200)
-            x2 = np.linspace(0.1, 10, 200)
-            y1 = (a / x1) + q
-            y2 = (a / x2) + q
-            fig.add_trace(go.Scatter(x=x1, y=y1, name="Branch 1", line=dict(color='blue', width=3)))
-            fig.add_trace(go.Scatter(x=x2, y=y2, name="Branch 2", line=dict(color='blue', width=3)))
-            x = np.concatenate([x1, x2]); y = np.concatenate([y1, y2])
-            
-        elif func_choice == "Exponential":
-            x = np.linspace(-5, 5, 400)
-            y = a * (b**x) + q
-            
+        st.markdown("### Interpretation")
 
-[Image of an exponential growth and decay graph]
+        if func == "Parabola":
+            st.write(f"Turning point: (0, {q})")
+            st.write("Opens upward" if a > 0 else "Opens downward")
 
-        else: # Sine
-            x = np.linspace(0, 360, 500)
-            y = a * np.sin(np.radians(x)) + q
-            
+        elif func == "Hyperbola":
+            st.write("Vertical asymptote: x = 0")
+            st.write(f"Horizontal asymptote: y = {q}")
 
-        if func_choice != "Hyperbola":
-            fig.add_trace(go.Scatter(x=x, y=y, name="Result", line=dict(color='blue', width=3)))
+        elif func == "Exponential":
+            st.write("Growth" if b > 1 else "Decay")
+            st.write(f"Asymptote y = {q}")
 
-        # Add Asymptote Line
-        fig.add_hline(y=q, line_dash="dash", line_color="red", annotation_text=f"y = {q}")
-        
-        fig.update_layout(yaxis=dict(range=[-10, 10]), template="plotly_white", height=500)
-        st.plotly_chart(fig, use_container_width=True)
+        elif func == "Sine":
+            st.write(f"Amplitude = {abs(a)}")
+            st.write(f"Midline y = {q}")
 
-def render_test_page():
-    st.header("📝 Graded Assessment")
-    
+    with col2:
+        if func == "Parabola":
+            x, y = generate_parabola(a, q)
+
+        elif func == "Hyperbola":
+            x, y = generate_hyperbola(a, q)
+
+        elif func == "Exponential":
+            x, y = generate_exponential(a, b, q)
+
+        else:
+            x, y = generate_sine(a, q)
+
+        st.plotly_chart(plot_graph(x, y, q), use_container_width=True)
+
+
+def render_assessment():
+    st.header("Assessment")
+
     if st.session_state.show_grade_result:
-        st.success(f"Graded! Your score: {st.session_state.last_score}")
-    
-    with st.form("test_form"):
-        st.write("Q1: If $y = 3x^2 + 2$, what is the turning point?")
-        ans1 = st.text_input("Answer Q1", placeholder="(x, y)")
-        
-        st.write("Q2: In $y = \\frac{2}{x} - 4$, what is the horizontal asymptote?")
-        ans2 = st.text_input("Answer Q2", placeholder="y = ...")
-        
-        if st.form_submit_button("Submit Answers"):
-            # Simple grading logic for demo
-            correct = 0
-            if "0,2" in ans1.replace(" ", ""): correct += 1
-            if "-4" in ans2: correct += 1
-            
-            score_str = f"{correct}/2"
+        st.success(f"Score: {st.session_state.last_score}")
+
+    with st.form("assessment_form"):
+        st.write("Q1: If y = 3x² + 2, what is the turning point?")
+        ans1 = st.text_input("Answer Q1")
+
+        st.write("Q2: In y = 2/x - 4, what is the horizontal asymptote?")
+        ans2 = st.text_input("Answer Q2")
+
+        if st.form_submit_button("Submit"):
+            correct = grade_assessment(ans1, ans2)
+            percent = (correct / 2) * 100
+
             st.session_state.test_submissions.append({
                 "Time": datetime.datetime.now().strftime("%H:%M"),
-                "Score": score_str,
-                "Percent": (correct/2)*100
+                "Score": f"{correct}/2",
+                "Percent": percent
             })
-            st.session_state.last_score = score_str
+
+            st.session_state.last_score = f"{correct}/2"
             st.session_state.show_grade_result = True
             st.rerun()
 
+
 def render_analytics():
-    st.header("📊 Progress Tracker")
-    if st.session_state.test_submissions:
-        df = pd.DataFrame(st.session_state.test_submissions)
-        st.line_chart(df, x="Time", y="Percent")
-        st.table(df)
-    else:
-        st.info("Complete a test to see results.")
+    st.header("Progress Analytics")
 
-# -------------------------
-# MAIN APP FLOW
-# -------------------------
+    if not st.session_state.test_submissions:
+        st.info("No results yet.")
+        return
+
+    df = pd.DataFrame(st.session_state.test_submissions)
+    st.line_chart(df, x="Time", y="Percent")
+    st.dataframe(df, use_container_width=True)
+
+    avg = df["Percent"].mean()
+    st.metric("Average Score", f"{avg:.1f}%")
+
+    if avg < 60:
+        st.warning("Student needs reinforcement.")
+
+
+# =====================================================
+# APP ROUTER
+# =====================================================
 def main():
-    # 1. Initialize State
-    if 'test_submissions' not in st.session_state:
-        st.session_state.test_submissions = []
-    if 'show_grade_result' not in st.session_state:
-        st.session_state.show_grade_result = False
-    if 'last_score' not in st.session_state:
-        st.session_state.last_score = ""
+    init_session_state()
 
-    # 2. Sidebar Navigation
-    st.sidebar.title("Math Tutor Tool")
-    menu = ["Theory Gallery", "Live Graph Lab", "Assessment", "Analytics"]
-    choice = st.sidebar.radio("Navigation", menu)
+    st.sidebar.title("Tutor System")
+    page = st.sidebar.radio("Navigation", [
+        "Theory",
+        "Graph Lab",
+        "Assessment",
+        "Analytics"
+    ])
 
-    # 3. Page Routing
-    if choice == "Theory Gallery":
-        render_theory_overview()
-    elif choice == "Live Graph Lab":
-        render_visualization_lab()
-    elif choice == "Assessment":
-        render_test_page()
-    elif choice == "Analytics":
+    if page == "Theory":
+        render_theory()
+
+    elif page == "Graph Lab":
+        render_graph_lab()
+
+    elif page == "Assessment":
+        render_assessment()
+
+    elif page == "Analytics":
         render_analytics()
+
 
 if __name__ == "__main__":
     main()
