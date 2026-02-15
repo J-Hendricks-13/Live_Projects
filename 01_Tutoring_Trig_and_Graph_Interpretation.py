@@ -93,6 +93,7 @@ LESSON_PAGES = {
     "4. Interpreting Graphs": {"type": "practice_interactive"},
     "5. Trig Test": {"type": "test_static"},
     "6. Progress Analytics": {"type": "analytics_page"},
+    "7. Live Graph Lab": {"type": "visualization_tab"},
 }
 
 # -------------------------
@@ -235,19 +236,69 @@ def render_analytics_page():
 # -------------------------
 # MAIN
 # -------------------------
+def render_visualization_tab():
+    st.header("🎮 Live Graph Lab")
+    st.markdown("Adjust the sliders to see how the parameters **$a$** and **$q$** transform the parent function.")
+
+    col1, col2 = st.columns([1, 3])
+
+    with col1:
+        st.subheader("Controls")
+        func_type = st.selectbox("Select Function", ["Sine", "Cosine", "Tangent"])
+        a = st.slider("Amplitude (a)", float(0.5), float(5.0), float(1.0), 0.5)
+        q = st.slider("Vertical Shift (q)", float(-5.0), float(5.0), float(0.0), 0.5)
+        
+        st.info(f"Current Equation: \n\n $y = {a} \\, \\text{{{func_type.lower()}}}(x) + ({q})$")
+
+    with col2:
+        # Generate Data
+        x = np.linspace(0, 360, 500)
+        x_rad = np.radians(x)
+        
+        if func_type == "Sine":
+            y = a * np.sin(x_rad) + q
+        elif func_type == "Cosine":
+            y = a * np.cos(x_rad) + q
+        else: # Tangent
+            y = a * np.tan(x_rad) + q
+            # Clean up Tan asymptotes for better plotting
+            y[np.abs(y) > 10] = np.nan 
+
+        # Create Plotly Chart
+        fig = go.Figure()
+        
+        # Add the transformed graph
+        fig.add_trace(go.Scatter(x=x, y=y, mode='lines', name=f'Transformed {func_type}', line=dict(color='firebrick', width=3)))
+        
+        # Add Reference Line (Rest Position / q)
+        fig.add_hline(y=q, line_dash="dash", line_color="gray", annotation_text="Rest Position (q)")
+
+        fig.update_layout(
+            title=f"Interactive {func_type} Graph",
+            xaxis_title="Degrees (°)",
+            yaxis_title="y",
+            yaxis=dict(range=[-7, 7]),
+            xaxis=dict(tickmode='array', tickvals=[0, 90, 180, 270, 360]),
+            template="plotly_white",
+            height=500
+        )
+        
+        st.plotly_chart(fig, use_container_width=True)
+
+# Update the main() logic to handle the new ptype
 def main():
-    if 'test_submissions' not in st.session_state: st.session_state.test_submissions = []
-    if 'show_grade_result' not in st.session_state: st.session_state.show_grade_result = False
-    if 'last_submission_score' not in st.session_state: st.session_state.last_submission_score = ""
+    # ... (state initialization)
     
     sel = st.sidebar.radio("Navigate Lesson", list(LESSON_PAGES.keys()))
     page = LESSON_PAGES[sel]
-    
-    if page["type"] == "theory_summary": render_rules_overview()
-    elif page["type"] == "rule_examples": render_rule_examples(page)
-    elif page["type"] == "practice_interactive": render_practice_interactive()
-    elif page["type"] == "test_static": render_test_static()
-    elif page["type"] == "analytics_page": render_analytics_page()
+    ptype = page.get("type")
+
+    if ptype == "theory_summary": render_rules_overview()
+    elif ptype == "rule_examples": render_rule_examples(page)
+    elif ptype == "practice_interactive": render_practice_interactive()
+    elif ptype == "test_static": render_test_static()
+    elif ptype == "analytics_page": render_analytics_page()
+    elif ptype == "visualization_tab": render_visualization_tab() # NEW
 
 if __name__ == "__main__":
     main()
